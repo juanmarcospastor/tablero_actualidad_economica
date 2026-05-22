@@ -1,0 +1,61 @@
+<div class="card widget-card">
+  <div class="card-header d-flex justify-content-between align-items-start">
+    <div>
+      <div class="card-title">BCRA · Monetarias</div>
+
+      <div class="card-subtitle">
+        Fuente:
+        <a href="{{ fuente }}" target="_blank" rel="noopener">{{ fuente }}</a>
+
+        {% if error %}
+          · <span style="color:#b91c1c;">{{ error }}</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-2">
+        <select
+          class="form-select form-select-sm"
+          name="var"
+          style="max-width: 360px;"
+          hx-get="/widget/bcra_monetarias"
+          hx-trigger="change"
+          hx-target="closest .widget-card"
+          hx-swap="outerHTML"
+        >
+          {% for k, cfg in variables.items() %}
+            <option value="{{ k }}" {% if k == var_key %}selected{% endif %}>
+              {{ cfg.label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <span class="badge badge-soft">BCRA</span>
+  </div>
+
+  <div class="card-body">
+    <div class="series-meta">
+      <div>Último: <strong class="js-current-value">{% if serie.ultimo is not none %}{{ serie.ultimo }}{% else %}-{% endif %}</strong></div>
+      <div>Fecha: <strong class="js-current-date">{{ serie.fecha_ultimo or '-' }}</strong></div>
+      <div>Variación <strong class="js-range-label">1M</strong>: <span class="series-variation js-range-variation flat">-</span></div>
+    </div>
+
+    <div class="rp-controls">
+      <button class="rp-btn rp-btn-active" data-range="1m" type="button">1M</button>
+      <button class="rp-btn" data-range="3m" type="button">3M</button>
+      <button class="rp-btn" data-range="1y" type="button">1A</button>
+      <button class="rp-btn" data-range="all" type="button">Todo</button>
+    </div>
+
+    <div
+      class="rp-chart"
+      data-x='{{ (serie.x or []) | tojson }}'
+      data-y='{{ (serie.y or []) | tojson }}'
+      data-series-name='{{ variables[var_key].label }}'
+      data-y-title='{{ y_title }}'
+      data-decimals="2"
+      style="height:320px;"
+    ></div>
+  </div>
+</div>

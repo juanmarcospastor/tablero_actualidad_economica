@@ -1,0 +1,44 @@
+<div class="card widget-card">
+  <div class="card-header d-flex justify-content-between align-items-start">
+    <div>
+      <div class="card-title">Cotizaciones dólar (Infobae)</div>
+      <div class="card-subtitle">
+        Fuente:
+        <a href="{{ fuente }}" target="_blank" rel="noopener">{{ fuente }}</a>
+      </div>
+    </div>
+    <span class="badge badge-soft">Divisas</span>
+  </div>
+
+  <div class="card-body">
+
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th class="text-end">Compra</th>
+            <th class="text-end">Venta</th>
+            <th class="text-end">Variación</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for k, v in datos.items() %}
+          <tr>
+            <td>{{ k }}</td>
+            <td class="text-end">{{ v.compra }}</td>
+            <td class="text-end">{{ v.venta }}</td>
+            <td class="text-end">{{ v.variacion }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-subtitle mt-3">
+      Actualiza automáticamente cada pocos minutos.
+    </div>
+
+  </div>
+</div>

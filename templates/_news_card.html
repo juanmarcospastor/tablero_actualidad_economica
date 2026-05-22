@@ -1,0 +1,18 @@
+<div class="card widget-card">
+  <div class="card-header d-flex justify-content-between align-items-start">
+    <div>
+      <div class="card-title">{{ titulo }}</div>
+      <div class="card-subtitle">Fuente: <a href="{{ fuente }}" target="_blank" rel="noopener">{{ fuente }}</a></div>
+    </div>
+    <span class="badge badge-soft">Noticias</span>
+  </div>
+  <div class="card-body">
+    {% if item %}
+      <div class="mb-2 fw-bold">{{ item.titulo }}</div>
+      {% if item.epigrafe %}<div class="mb-3 fw-normal">{{ item.epigrafe }}</div>{% endif %}
+      <a class="btn btn-outline-dark btn-sm" href="{{ item.url }}" target="_blank" rel="noopener">Abrir noticia</a>
+    {% else %}
+      <div class="text-muted">No se pudo cargar la noticia.</div>
+    {% endif %}
+  </div>
+</div>

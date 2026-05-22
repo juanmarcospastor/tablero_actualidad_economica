@@ -1,0 +1,29 @@
+<div class="card widget-card">
+  <div class="card-header d-flex justify-content-between align-items-start">
+    <div>
+      <div class="card-title">Inflación</div>
+      <div class="card-subtitle">
+        Fuente:
+        <a href="{{ fuente_mensual }}" target="_blank" rel="noopener">mensual</a>
+        · <a href="{{ fuente_interanual }}" target="_blank" rel="noopener">interanual</a>
+        {% if error %} · <span style="color:#b91c1c;">{{ error }}</span>{% endif %}
+      </div>
+    </div>
+    <span class="badge badge-soft">IPC</span>
+  </div>
+  <div class="card-body">
+    <div class="series-meta">
+      <div>Mensual: <strong>{{ "%.2f"|format(mensual.ultimo or 0) }}%</strong></div>
+      <div>Interanual: <strong>{{ "%.2f"|format(interanual.ultimo or 0) }}%</strong></div>
+      <div>Fecha: <strong>{{ mensual.fecha_ultimo or interanual.fecha_ultimo or '-' }}</strong></div>
+    </div>
+    <div
+      class="rp-chart-inflacion"
+      data-x-mensual='{{ (mensual.x or []) | tojson }}'
+      data-y-mensual='{{ (mensual.y or []) | tojson }}'
+      data-x-interanual='{{ (interanual.x or []) | tojson }}'
+      data-y-interanual='{{ (interanual.y or []) | tojson }}'
+      style="height:320px;"
+    ></div>
+  </div>
+</div>

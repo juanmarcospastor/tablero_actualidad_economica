@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tablero Actualidad Económica</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background:#f3f4f6; }
+    .topbar { background:linear-gradient(90deg,#0b1220,#14213d); color:#fff; padding:22px 0; border-bottom:3px solid #f4b400; }
+    .topbar .subtitle { color:rgba(255,255,255,.75); font-size:14px; }
+    .chip { display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.08); color:#fff; font-size:12px; margin-left:8px; }
+    .container-xl { max-width:1600px; }
+    .widget-card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:14px; box-shadow:0 1px 8px rgba(0,0,0,.05); overflow:hidden; }
+    .card-header { background:#fff; padding:16px 18px; border-bottom:1px solid rgba(0,0,0,.08); }
+    .card-body { padding:16px 18px; }
+    .card-title { font-weight:800; font-size:20px; margin:0; }
+    .card-subtitle { margin-top:4px; font-size:13px; color:#6b7280; }
+    .badge-soft { background:#eef2ff; color:#3730a3; border:1px solid rgba(55,48,163,.15); font-weight:700; }
+    .stack { display:flex; flex-direction:column; gap:14px; }
+    .rp-controls { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+    .rp-btn { border:1px solid rgba(0,0,0,.15); background:#fff; border-radius:10px; padding:6px 10px; font-weight:700; font-size:12px; cursor:pointer; }
+    .rp-btn-active { background:#0b1220; color:#fff; border-color:#0b1220; }
+    .series-meta { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px; font-size:13px; color:#4b5563; }
+    .series-meta strong { color:#111827; }
+    .series-variation { font-weight:700; }
+    .series-variation.up { color:#047857; } .series-variation.down { color:#b91c1c; } .series-variation.flat { color:#6b7280; }
+    .commodity-error { color:#b91c1c; font-size:13px; margin-top:10px; }
+    .is-collapsed .collapsible-body { display:none; }
+    .section-title-wrap { margin-top:28px; margin-bottom:14px; scroll-margin-top:130px; }
+    .section-title-wrap hr { margin:0 0 14px 0; border-color:rgba(0,0,0,.10); }
+    .section-title { font-weight:900; font-size:24px; color:#14213d; margin:0; }
+    .section-subtitle { margin-top:4px; font-size:13px; color:#6b7280; }
+    .section-block { margin-bottom:10px; }
+    .section-nav-wrap { position:sticky; top:0; z-index:1030; background:rgba(243,244,246,.96); backdrop-filter:blur(8px); border-bottom:1px solid rgba(0,0,0,.06); }
+    .section-nav { display:flex; gap:10px; overflow-x:auto; white-space:nowrap; padding:12px 0; }
+    .section-link { display:inline-flex; text-decoration:none; padding:10px 14px; border-radius:999px; background:#fff; border:1px solid rgba(0,0,0,.08); color:#14213d; font-size:13px; font-weight:800; box-shadow:0 1px 6px rgba(0,0,0,.04); flex:0 0 auto; }
+    .section-link:hover { background:#14213d; color:#fff; border-color:#14213d; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container-xl d-flex align-items-start justify-content-between">
+      <div>
+        <h1 class="m-0" style="font-weight:900; font-size:28px;">Tablero Actualidad Económica</h1>
+        <div class="subtitle">Noticias · Mercados · Indicadores · Commodities</div>
+      </div>
+      <div><span class="chip">FLASK</span><span class="chip">VERCEL</span><span class="chip">LIVE</span></div>
+    </div>
+  </div>
+
+  <div class="section-nav-wrap">
+    <div class="container-xl">
+      <nav class="section-nav" aria-label="Navegación interna del tablero">
+        <a class="section-link" href="#noticias">Noticias</a>
+        <a class="section-link" href="#mercados">Mercados e Indicadores</a>
+        <a class="section-link" href="#commodities">Commodities</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container-xl my-4">
+    <section id="noticias" class="section-title-wrap">
+      <hr><h2 class="section-title">Noticias</h2>
+      <div class="section-subtitle">Cobertura internacional, nacional y provincial</div>
+    </section>
+    <div class="row g-3 section-block mb-3">
+      <div class="col-12 col-lg-4"><div hx-get="/widget/infobae_mundo" hx-trigger="load, every 240s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando Infobae Mundo...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/infobae" hx-trigger="load, every 240s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando Infobae Economía...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/tiempo_sj" hx-trigger="load, every 240s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando Tiempo de San Juan...</div></div></div>
+    </div>
+
+    <section id="mercados" class="section-title-wrap">
+      <hr><h2 class="section-title">Mercados e Indicadores</h2>
+      <div class="section-subtitle">Cotizaciones, tipo de cambio, inflación, BCRA y riesgo país</div>
+    </section>
+
+    <div class="section-subtitle fw-semibold mb-2" style="color:#14213d;">Tipo de cambio</div>
+    <div class="row g-3 section-block mb-3">
+      <div class="col-12 col-lg-4"><div hx-get="/widget/dolares_infobae" hx-trigger="load, every 300s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando cotizaciones...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/dolares_ad?casa=OFICIAL" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando dólar ArgentinaDatos...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/riesgo_pais" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando riesgo país...</div></div></div>
+    </div>
+
+    <div class="section-subtitle fw-semibold mb-2" style="color:#14213d;">Inflación y BCRA</div>
+    <div class="row g-3 section-block mb-3">
+      <div class="col-12 col-lg-4"><div hx-get="/widget/inflacion" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando inflación...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/bcra_monetarias?var=TAMAR_PRIVADOS" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando BCRA...</div></div></div>
+      <div class="col-12 col-lg-4"><div hx-get="/widget/bcra_monetarias?var=RESERVAS" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando reservas...</div></div></div>
+    </div>
+
+    <section id="commodities" class="section-title-wrap">
+      <hr><h2 class="section-title">Commodities</h2>
+      <div class="section-subtitle">Seguimiento de petróleo WTI/Brent</div>
+    </section>
+    <div class="row g-3 section-block">
+      <div class="col-12 col-lg-8"><div hx-get="/widget/wti_card" hx-trigger="load" hx-swap="innerHTML"><div class="widget-card card-body">Cargando petróleo crudo...</div></div></div>
+    </div>
+  </main>
+
+<script>
+function parseDate(s){ const d=new Date(s); return isNaN(d.getTime()) ? null : d; }
+function fmtNum(v, dec=2){ if(v===null || v===undefined || isNaN(Number(v))) return "-"; return Number(v).toLocaleString("es-AR",{minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function fmtPct(v){ if(v===null || v===undefined || isNaN(Number(v))) return "-"; const n=Number(v); return (n>0?"+":"") + n.toLocaleString("es-AR",{minimumFractionDigits:2, maximumFractionDigits:2}) + "%"; }
+function setVarClass(el, v){ if(!el) return; el.classList.remove("up","down","flat"); if(v>0) el.classList.add("up"); else if(v<0) el.classList.add("down"); else el.classList.add("flat"); }
+function filterRange(x,y,kind){
+  const rows=x.map((xx,i)=>({x:xx,y:y[i],d:parseDate(xx)})).filter(r=>r.d);
+  if(!rows.length) return {x:[],y:[]};
+  const last=rows[rows.length-1].d; let start=null;
+  if(kind==="1m"){ start=new Date(last); start.setMonth(start.getMonth()-1); }
+  if(kind==="3m"){ start=new Date(last); start.setMonth(start.getMonth()-3); }
+  if(kind==="1y"){ start=new Date(last); start.setFullYear(start.getFullYear()-1); }
+  const f=start ? rows.filter(r=>r.d>=start) : rows;
+  return {x:f.map(r=>r.x), y:f.map(r=>r.y)};
+}
+function variation(y){ if(!y || y.length<2 || Number(y[0])===0) return null; return (Number(y[y.length-1])/Number(y[0])-1)*100; }
+function renderSimpleCharts(root){
+  if(typeof Plotly === "undefined") return;
+  (root||document).querySelectorAll(".rp-chart").forEach(el=>{
+    if(el.dataset.rendered==="1") return;
+    let x=[],y=[]; try{x=JSON.parse(el.dataset.x||"[]"); y=JSON.parse(el.dataset.y||"[]");}catch(e){}
+    const card=el.closest(".widget-card"); const btns=card?card.querySelectorAll(".rp-btn"):[];
+    const name=el.dataset.seriesName||"Serie"; const yTitle=el.dataset.yTitle||"Valor"; const decimals=Number(el.dataset.decimals||2);
+    function draw(kind){
+      const f=filterRange(x,y,kind||"1m"); const v=variation(f.y);
+      Plotly.react(el,[{x:f.x,y:f.y,type:"scatter",mode:"lines+markers",name:name,marker:{size:4}}],{margin:{l:50,r:20,t:10,b:40},xaxis:{title:"Fecha"},yaxis:{title:yTitle},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",showlegend:false},{displayModeBar:false,responsive:true});
+      if(card){
+        const cv=card.querySelector(".js-current-value"), cd=card.querySelector(".js-current-date"), ve=card.querySelector(".js-range-variation"), rl=card.querySelector(".js-range-label");
+        if(cv) cv.textContent=fmtNum(f.y[f.y.length-1],decimals); if(cd) cd.textContent=f.x[f.x.length-1]||"-"; if(rl) rl.textContent=(kind==="all"?"Todo":kind.toUpperCase().replace("Y","A")); if(ve){ve.textContent=fmtPct(v); setVarClass(ve,v||0);}
+      }
+    }
+    btns.forEach(b=>b.addEventListener("click",()=>{btns.forEach(x=>x.classList.remove("rp-btn-active")); b.classList.add("rp-btn-active"); draw(b.dataset.range||"1m");}));
+    draw("1m"); el.dataset.rendered="1";
+  });
+}
+function renderInflacion(root){
+  if(typeof Plotly === "undefined") return;
+  (root||document).querySelectorAll(".rp-chart-inflacion").forEach(el=>{
+    if(el.dataset.rendered==="1") return;
+    let xm=[],ym=[],xi=[],yi=[]; try{xm=JSON.parse(el.dataset.xMensual||"[]"); ym=JSON.parse(el.dataset.yMensual||"[]"); xi=JSON.parse(el.dataset.xInteranual||"[]"); yi=JSON.parse(el.dataset.yInteranual||"[]");}catch(e){}
+    Plotly.react(el,[{x:xm,y:ym,type:"bar",name:"Mensual"},{x:xi,y:yi,type:"scatter",mode:"lines+markers",name:"Interanual",yaxis:"y2"}],{margin:{l:45,r:45,t:10,b:40},xaxis:{title:"Fecha"},yaxis:{title:"Mensual %"},yaxis2:{title:"Interanual %",overlaying:"y",side:"right"},legend:{orientation:"h",y:1.12},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{displayModeBar:false,responsive:true});
+    el.dataset.rendered="1";
+  });
+}
+async function renderCommodity(root){
+  const cards=(root||document).querySelectorAll(".commodity-card");
+  cards.forEach(card=>{
+    if(card.dataset.ready==="1") return; card.dataset.ready="1";
+    let view="both", range="1D";
+    const chart=card.querySelector(".js-commodity-chart"), msg=card.querySelector(".js-commodity-msg");
+    const viewBtns=card.querySelectorAll(".js-commodity-view"), rangeBtns=card.querySelectorAll(".js-commodity-range");
+    async function load(){
+      if(msg){ msg.textContent="Cargando..."; msg.classList.remove("commodity-error"); }
+      try{
+        const res=await fetch(`/api/asset-data?compare=${encodeURIComponent(view)}&range=${encodeURIComponent(range)}`);
+        const data=await res.json(); if(!res.ok) throw new Error(data.error||"Error");
+        const traces=[];
+        Object.keys(data.series_map||{}).forEach(k=>{ const s=data.series_map[k]; traces.push({x:s.x,y:s.y,type:"scatter",mode:"lines",name:data.labels_map[k]||k}); });
+        Plotly.react(chart,traces,{margin:{l:50,r:20,t:10,b:40},xaxis:{title:"Fecha"},yaxis:{title:"USD"},legend:{orientation:"h",y:1.12},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{displayModeBar:false,responsive:true});
+        ["wti","brent"].forEach(k=>{ const pe=card.querySelector(`.js-commodity-price-${k}`), ve=card.querySelector(`.js-commodity-variation-${k}`); if(pe) pe.textContent=fmtNum(data.latest_map?.[k],2); if(ve){ const v=data.variation_map?.[k]; ve.textContent=fmtPct(v); setVarClass(ve,v||0); } });
+        const up=card.querySelector(".js-commodity-updated"); if(up) up.textContent="Actualizado: "+(data.updated_at||"-"); if(msg) msg.textContent="Fuente: Yahoo Finance";
+      }catch(e){ if(msg){ msg.textContent=e.message; msg.classList.add("commodity-error"); } }
+    }
+    viewBtns.forEach(b=>b.addEventListener("click",()=>{ viewBtns.forEach(x=>x.classList.remove("rp-btn-active")); b.classList.add("rp-btn-active"); view=b.dataset.view||"both"; load(); }));
+    rangeBtns.forEach(b=>b.addEventListener("click",()=>{ rangeBtns.forEach(x=>x.classList.remove("rp-btn-active")); b.classList.add("rp-btn-active"); range=b.dataset.range||"1D"; load(); }));
+    card.querySelectorAll('[data-action="toggle-card"]').forEach(btn=>btn.addEventListener("click",()=>{card.classList.toggle("is-collapsed"); btn.textContent=card.classList.contains("is-collapsed") ? btn.dataset.collapsedText : btn.dataset.expandedText;}));
+    load();
+  });
+}
+document.body.addEventListener("htmx:afterSwap", e=>{ renderSimpleCharts(e.target); renderInflacion(e.target); renderCommodity(e.target); });
+document.addEventListener("DOMContentLoaded",()=>{ renderSimpleCharts(document); renderInflacion(document); renderCommodity(document); });
+</script>
+</body>
+</html>
