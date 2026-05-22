@@ -173,51 +173,46 @@ def obtener_dolares_ad(casa_key):
 
 
 def obtener_tipos_cambio_infobae_dolar_hoy():
-    casas = {
-        "Dólar Oficial": "oficial",
-        "Dólar Blue": "blue",
-        "Dólar MEP": "bolsa",
-        "Contado con liqui": "contadoconliqui",
-        "Dólar Mayorista": "mayorista",
-        "Dólar Tarjeta": "turista",
-    }
+    """
+    Lee cotización del dólar oficial desde ArgentinaDatos.
+    Endpoint:
+    https://api.argentinadatos.com/v1/cotizaciones/dolares/oficial
+    """
 
-    out = {}
+    url = "https://api.argentinadatos.com/v1/cotizaciones/dolares/oficial"
 
-    for nombre, casa in casas.items():
-        try:
-            r = requests.get(
-                f"{DOLARES_AD_BASE}/{casa}",
-                headers=_headers(),
-                timeout=20
-            )
-            r.raise_for_status()
-            data = r.json()
+    try:
+        r = requests.get(url, headers=_headers(), timeout=20)
+        r.raise_for_status()
+        data = r.json()
 
-            if isinstance(data, list) and data:
-                ultimo = sorted(data, key=lambda x: x.get("fecha", ""))[-1]
-            elif isinstance(data, dict) and isinstance(data.get("results"), list) and data["results"]:
-                ultimo = sorted(data["results"], key=lambda x: x.get("fecha", ""))[-1]
-            else:
-                ultimo = {}
+        if not isinstance(data, list) or not data:
+            raise ValueError("La API no devolvió una lista con datos.")
 
-            compra = ultimo.get("compra", "-")
-            venta = ultimo.get("venta", "-")
+        # Ordena por fecha y toma la última disponible
+        data = sorted(data, key=lambda x: x.get("fecha", ""))
+        ultimo = data[-1]
 
-            out[nombre] = {
+        fecha = ultimo.get("fecha", "-")
+        compra = ultimo.get("compra", "-")
+        venta = ultimo.get("venta", "-")
+
+        return {
+            "Dólar Oficial": {
                 "compra": compra,
                 "venta": venta,
-                "variacion": "-"
+                "variacion": fecha
             }
+        }
 
-        except Exception as e:
-            out[nombre] = {
+    except Exception as e:
+        return {
+            "Dólar Oficial": {
                 "compra": "-",
                 "venta": "-",
-                "variacion": f"{type(e).__name__}"
+                "variacion": f"No se pudo leer API: {type(e).__name__}"
             }
-
-    return out
+        }
 
 def _normalizar_texto(s):
     return re.sub(r"\s+", " ", str(s or "").lower()).strip()
