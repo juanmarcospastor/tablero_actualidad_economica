@@ -172,39 +172,52 @@ def obtener_dolares_ad(casa_key):
     return {"x": x, "y": y, "ultimo": y[-1] if y else None, "fecha_ultimo": x[-1] if x else None}
 
 
-def obtener_cotizaciones_infobae():
-    # Versión liviana sin Playwright. Si Infobae cambia el HTML, se muestra mensaje pero no rompe el tablero.
-    try:
-        r = requests.get(INFOBAE_DOLAR_URL, headers=_headers(), timeout=15)
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "lxml")
-        out = {}
-        for card in soup.select("a.foreign-item-ctn, div.foreign-item-ctn"):
-            title_el = card.select_one("span.box-info-title")
-            if not title_el:
-                continue
-            title = title_el.get_text(" ", strip=True)
-            compra = venta = variacion = "-"
-            for sub in card.select("div.box-info-sub-content"):
-                label = sub.select_one("span.box-info-value")
-                val = sub.select_one("span.fc-val")
-                if not label or not val:
-                    continue
-                txt_label = label.get_text(" ", strip=True).lower()
-                if "compra" in txt_label:
-                    compra = val.get_text(" ", strip=True)
-                elif "venta" in txt_label:
-                    venta = val.get_text(" ", strip=True)
-            pct = card.select_one("div.box-info-content-percent")
-            if pct:
-                variacion = re.sub(r"\s+", "", pct.get_text(" ", strip=True)) or "-"
-            out[title] = {"compra": compra, "venta": venta, "variacion": variacion}
-        if out:
-            return out
-    except Exception:
-        pass
-    return {"No disponible": {"compra": "-", "venta": "-", "variacion": "No se pudo leer con requests"}}
+def obtener_tipos_cambio_infobae_dolar_hoy():
+    casas = {
+        "Dólar Oficial": "oficial",
+        "Dólar Blue": "blue",
+        "Dólar MEP": "bolsa",
+        "Contado con liqui": "contadoconliqui",
+        "Dólar Mayorista": "mayorista",
+        "Dólar Tarjeta": "turista",
+    }
 
+    out = {}
+
+    for nombre, casa in casas.items():
+        try:
+            r = requests.get(
+                f"{DOLARES_AD_BASE}/{casa}",
+                headers=_headers(),
+                timeout=20
+            )
+            r.raise_for_status()
+            data = r.json()
+
+            if isinstance(data, list) and data:
+                ultimo = sorted(data, key=lambda x: x.get("fecha", ""))[-1]
+            elif isinstance(data, dict) and isinstance(data.get("results"), list) and data["results"]:
+                ultimo = sorted(data["results"], key=lambda x: x.get("fecha", ""))[-1]
+            else:
+                ultimo = {}
+
+            compra = ultimo.get("compra", "-")
+            venta = ultimo.get("venta", "-")
+
+            out[nombre] = {
+                "compra": compra,
+                "venta": venta,
+                "variacion": "-"
+            }
+
+        except Exception as e:
+            out[nombre] = {
+                "compra": "-",
+                "venta": "-",
+                "variacion": f"{type(e).__name__}"
+            }
+
+    return out
 
 def _normalizar_texto(s):
     return re.sub(r"\s+", " ", str(s or "").lower()).strip()
