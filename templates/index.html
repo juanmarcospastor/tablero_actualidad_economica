@@ -86,11 +86,30 @@
     </div>
 
     <div class="section-subtitle fw-semibold mb-2" style="color:#14213d;">Inflación y BCRA</div>
-    <div class="row g-3 section-block mb-3">
-      <div class="col-12 col-lg-4"><div hx-get="/widget/inflacion" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando inflación...</div></div></div>
-      <div class="col-12 col-lg-4"><div hx-get="/widget/bcra_monetarias?var=TAMAR_PRIVADOS" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando BCRA...</div></div></div>
-      <div class="col-12 col-lg-4"><div hx-get="/widget/bcra_monetarias?var=RESERVAS" hx-trigger="load, every 3600s" hx-swap="innerHTML"><div class="widget-card card-body">Cargando reservas...</div></div></div>
+
+<div class="row g-3 section-block mb-3">
+
+  <div class="col-12 col-lg-4">
+    <div hx-get="/widget/inflacion" hx-trigger="load, every 3600s" hx-swap="innerHTML">
+      <div class="widget-card card-body">Cargando inflación...</div>
     </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div hx-get="/widget/bcra_monetarias?var=TAMAR_PRIVADOS" hx-trigger="load, every 3600s" hx-swap="innerHTML">
+      <div class="widget-card card-body">Cargando BCRA...</div>
+    </div>
+  </div>
+
+  <!--
+  <div class="col-12 col-lg-4">
+    <div hx-get="/widget/bcra_monetarias?var=RESERVAS" hx-trigger="load, every 3600s" hx-swap="innerHTML">
+      <div class="widget-card card-body">Cargando reservas...</div>
+    </div>
+  </div>
+  -->
+
+</div>
 
     <section id="commodities" class="section-title-wrap">
       <hr><h2 class="section-title">Commodities</h2>
