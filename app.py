@@ -213,44 +213,115 @@ def _normalizar_texto(s):
 
 def obtener_bcra_ids():
     global _BCRA_IDS_CACHE
+
     if _BCRA_IDS_CACHE:
         return _BCRA_IDS_CACHE
+
     r = requests.get(BCRA_LIST_URL, headers=_headers(), timeout=25, verify=False)
     r.raise_for_status()
     data = r.json()
+
     items = data.get("results") or data.get("data") or data
+
     ids = {}
+
     for item in items if isinstance(items, list) else []:
-        nombre = _normalizar_texto(item.get("descripcion") or item.get("nombre") or item.get("name"))
-        ident = item.get("idVariable") or item.get("id") or item.get("codigo")
+        nombre = _normalizar_texto(
+            item.get("descripcion")
+            or item.get("nombre")
+            or item.get("name")
+            or ""
+        )
+
+        ident = (
+            item.get("idVariable")
+            or item.get("id")
+            or item.get("codigo")
+        )
+
         if not nombre or ident is None:
             continue
+
         for key, cfg in BCRA_VARIABLES.items():
-            if all(tok in nombre for tok in cfg["tokens"]):
+            tokens = [_normalizar_texto(t) for t in cfg["tokens"]]
+
+            if all(tok in nombre for tok in tokens):
                 ids[key] = ident
+
     _BCRA_IDS_CACHE = ids
     return ids
 
 
 def obtener_bcra_serie(var_key):
+    var_key = (var_key or "TAMAR_PRIVADOS").upper()
+
+    if var_key not in BCRA_VARIABLES:
+        var_key = "TAMAR_PRIVADOS"
+
     ids = obtener_bcra_ids()
+
     if var_key not in ids:
-        raise RuntimeError(f"No encontré el ID de la variable {var_key} en BCRA.")
-    r = requests.get(BCRA_SERIE_URL.format(id=ids[var_key]), headers=_headers(), timeout=25, verify=False)
+        raise RuntimeError(
+            f"No encontré el ID de la variable {var_key} en BCRA. "
+            f"IDs detectados: {ids}"
+        )
+
+    url = BCRA_SERIE_URL.format(id=ids[var_key])
+
+    r = requests.get(url, headers=_headers(), timeout=25, verify=False)
     r.raise_for_status()
     data = r.json()
-    items = data.get("results") or data.get("data") or data
+
+    results = data.get("results") or data.get("data") or data
+
     rows = []
+
+    # Caso habitual BCRA:
+    # results = [{"idVariable": ..., "descripcion": ..., "detalle": [...]}]
+    if isinstance(results, list) and results:
+        if isinstance(results[0], dict) and isinstance(results[0].get("detalle"), list):
+            items = results[0].get("detalle", [])
+        else:
+            items = results
+    elif isinstance(results, dict):
+        items = results.get("detalle", [])
+    else:
+        items = []
+
     for it in items if isinstance(items, list) else []:
-        f = it.get("fecha") or it.get("date")
-        v = _as_float(it.get("valor") or it.get("value"))
+        if not isinstance(it, dict):
+            continue
+
+        f = (
+            it.get("fecha")
+            or it.get("fechaInformacion")
+            or it.get("date")
+        )
+
+        v = (
+            it.get("valor")
+            or it.get("value")
+            or it.get("dato")
+        )
+
+        v = _as_float(str(v).replace(",", ".") if v is not None else None)
+
         if f and v is not None:
-            rows.append((f, v))
+            rows.append((str(f)[:10], v))
+
     rows.sort(key=lambda x: x[0])
+
     x = [f for f, _ in rows]
     y = [v for _, v in rows]
-    return {"x": x, "y": y, "ultimo": y[-1] if y else None, "fecha_ultimo": x[-1] if x else None}
 
+    return {
+        "x": x,
+        "y": y,
+        "ultimo": y[-1] if y else None,
+        "fecha_ultimo": x[-1] if x else None,
+        "id": ids[var_key],
+        "cantidad": len(rows),
+    }
 
 def get_yahoo_data(symbol, range_key):
     range_key = (range_key or "1M").upper()
