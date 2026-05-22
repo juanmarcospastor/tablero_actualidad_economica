@@ -173,29 +173,22 @@ def obtener_dolares_ad(casa_key):
 
 
 def obtener_tipos_cambio_infobae_dolar_hoy():
-    """
-    Lee cotización del dólar oficial desde ArgentinaDatos.
-    Endpoint:
-    https://api.argentinadatos.com/v1/cotizaciones/dolares/oficial
-    """
-
     url = "https://api.argentinadatos.com/v1/cotizaciones/dolares/oficial"
 
     try:
-        r = requests.get(url, headers=_headers(), timeout=20)
+        r = requests.get(url, headers=_headers(), timeout=10)
         r.raise_for_status()
         data = r.json()
 
-        if not isinstance(data, list) or not data:
-            raise ValueError("La API no devolvió una lista con datos.")
+        if not isinstance(data, list) or len(data) == 0:
+            raise ValueError("La API no devolvió datos.")
 
-        # Ordena por fecha y toma la última disponible
-        data = sorted(data, key=lambda x: x.get("fecha", ""))
-        ultimo = data[-1]
+        # Toma la última cotización disponible
+        ultimo = sorted(data, key=lambda x: x.get("fecha", ""))[-1]
 
-        fecha = ultimo.get("fecha", "-")
         compra = ultimo.get("compra", "-")
         venta = ultimo.get("venta", "-")
+        fecha = ultimo.get("fecha", "-")
 
         return {
             "Dólar Oficial": {
@@ -210,7 +203,7 @@ def obtener_tipos_cambio_infobae_dolar_hoy():
             "Dólar Oficial": {
                 "compra": "-",
                 "venta": "-",
-                "variacion": f"No se pudo leer API: {type(e).__name__}"
+                "variacion": f"{type(e).__name__}: {e}"
             }
         }
 
@@ -309,8 +302,11 @@ def widget_tiempo_sj():
 
 @app.route("/widget/dolares_infobae")
 def widget_dolares_infobae():
-    datos = obtener_cotizaciones_infobae()
-    return render_template("_dolares_cotizaciones_card.html", datos=datos, fuente=INFOBAE_DOLAR_URL)
+    return render_template(
+        "_dolares_cotizaciones_card.html",
+        datos=obtener_tipos_cambio_infobae_dolar_hoy(),
+        fuente="https://api.argentinadatos.com/v1/cotizaciones/dolares/oficial"
+    )
 
 
 @app.route("/widget/dolares_ad")
